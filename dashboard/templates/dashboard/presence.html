@@ -31,11 +31,17 @@
                     </tr>
                     </tfoot>
                     <tbody>
-                    {% for file in presence_files %}
+                    {% for file in latest_presence_files %}
                         <tr>
                             <td>{{ file.file_name }}</td>
                             <td>{{ file.comments }}</td>
-                            <td>{{ file.processing_status }}</td>
+                            <td>
+                                {% if file.processing_status %}
+                                    Processed
+                                {% else %}
+                                    In Queue
+                                {% endif %}
+                            </td>
                             <td>{{ file.upload_date }}</td>
                         </tr>
                     {% endfor %}
