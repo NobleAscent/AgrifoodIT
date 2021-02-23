@@ -1,0 +1,18 @@
+{% extends 'main_template.html' %}
+{% load static %}
+
+{% block head %}
+    <link rel="stylesheet" href="{% static 'css/dropzone.min.css' %}">
+    <script src="{% static 'js/dropzone.min.js' %}"></script>
+{% endblock head %}
+
+{% block content %}
+
+    <form action="upload/" method="post" class="dropzone">
+        {% csrf_token %}
+        <div class="fallback">
+            <input name="file" type="file" multiple/>
+        </div>
+    </form>
+
+{% endblock content %}
