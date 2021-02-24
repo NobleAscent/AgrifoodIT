@@ -1,0 +1,18 @@
+@startuml
+'https://plantuml.com/component-diagram
+
+
+package "AgrifoodIT" {
+   SideBarNavDIV - [main_template.html]
+  [urls.py]
+}
+
+node "Applications" {
+  [Dashboard] -> SideBarNavDIV
+  [Plugin 1] --> SideBarNavDIV
+}
+
+[Dashboard] -> [urls.py]
+[Plugin 1] -> [urls.py]
+
+@enduml
