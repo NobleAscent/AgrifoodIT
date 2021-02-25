@@ -20,7 +20,7 @@
             Upload Files Below
         </div>
         <div class="card-body">
-            <form action="presence/upload" method="post" class="dropzone">
+            <form action="upload" method="post" class="dropzone">
                 {% csrf_token %}
                 <div class="fallback">
                     <input name="file" type="file" multiple/>
