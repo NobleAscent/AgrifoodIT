@@ -14,3 +14,6 @@ class PresenceFile(models.Model):
     # https://docs.djangoproject.com/en/3.1/ref/models/fields/#filefield
     # file will be uploaded to MEDIA_ROOT/uploads/presence/
     upload = models.FileField(upload_to='uploads/presence/')
+
+    def __str__(self):
+        return self.file_name
