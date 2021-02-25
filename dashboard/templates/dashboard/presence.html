@@ -20,10 +20,10 @@
             Upload Files Below
         </div>
         <div class="card-body">
-            <form action="upload" method="post" class="dropzone">
+            <form action="upload" method="post" class="dropzone" id="textFileDropzone">
                 {% csrf_token %}
                 <div class="fallback">
-                    <input name="file" type="file" multiple/>
+                    <input name="file" type="file" accept=".txt" multiple/>
                 </div>
             </form>
         </div>
@@ -84,6 +84,19 @@
         $(document).ready(function () {
             $('#dataTable').DataTable();
         });
+
+        // Documentation: https://www.dropzonejs.com/#configuration-options
+        Dropzone.options.textFileDropzone = {
+            paramName: "file", // The name that will be used to transfer the file
+            maxFilesize: 2, // MB
+            acceptedFiles: ".txt",
+            init: function () {
+                this.on("success", function (file, responseText) {
+                    // Handle the responseText here. For example, add the text to the preview element:
+                    file.previewTemplate.appendChild(document.createTextNode(responseText.status));
+                });
+            }
+        };
 
     </script>
 {% endblock scripts %}
