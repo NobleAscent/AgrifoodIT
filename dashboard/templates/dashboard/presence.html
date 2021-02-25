@@ -1,0 +1,103 @@
+{% extends 'main_template.html' %}
+{% load static %}
+
+{% block head %}
+    <link rel="stylesheet" href="{% static 'css/dropzone.min.css' %}">
+    <script src="{% static 'js/dropzone.min.js' %}"></script>
+{% endblock head %}
+
+{% block content %}
+
+    <h1 class="mt-4">Presence</h1>
+    <ol class="breadcrumb mb-4">
+        <li class="breadcrumb-item active">Presence</li>
+    </ol>
+
+    {# Presence File Upload Zone #}
+    <div class="card mb-4">
+        <div class="card-header">
+            <i class="fas fa-table mr-1"></i>
+            Upload Files Below
+        </div>
+        <div class="card-body">
+            <form action="upload" method="post" class="dropzone" id="textFileDropzone">
+                {% csrf_token %}
+                <div class="fallback">
+                    <input name="file" type="file" accept=".txt" multiple/>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="card mb-4">
+        <div class="card-header">
+            <i class="fas fa-table mr-1"></i>
+            Uploaded Files
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
+                    <thead>
+                    <tr>
+                        <th>Filename</th>
+                        <th>Comments</th>
+                        <th>Processing Status</th>
+                        <th>Upload Time</th>
+                    </tr>
+                    </thead>
+                    <tfoot>
+                    <tr>
+                        <th>Filename</th>
+                        <th>Comments</th>
+                        <th>Processing Status</th>
+                        <th>Upload Time</th>
+                    </tr>
+                    </tfoot>
+                    <tbody>
+                    {% for file in latest_presence_files %}
+                        <tr>
+                            <td>{{ file.file_name }}</td>
+                            <td>{{ file.comments }}</td>
+                            <td>
+                                {% if file.processing_status %}
+                                    Processed
+                                {% else %}
+                                    In Queue
+                                {% endif %}
+                            </td>
+                            <td>{{ file.upload_date }}</td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+{% endblock content %}
+
+{% block scripts %}
+    <script src="https://cdn.datatables.net/1.10.20/js/jquery.dataTables.min.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.datatables.net/1.10.20/js/dataTables.bootstrap4.min.js" crossorigin="anonymous"></script>
+    <script>
+        // Call the dataTables jQuery plugin
+        $(document).ready(function () {
+            $('#dataTable').DataTable();
+        });
+
+        // Documentation: https://www.dropzonejs.com/#configuration-options
+        Dropzone.options.textFileDropzone = {
+            paramName: "file", // The name that will be used to transfer the file
+            maxFilesize: 2, // MB
+            acceptedFiles: ".txt",
+            accept: function (file, done) {
+                if (file.name.match(/[0-9]+_presence.txt/) == null) {
+                    done("Please upload only _presence.txt files");
+                } else {
+                    done();
+                }
+            }
+        };
+
+    </script>
+{% endblock scripts %}
