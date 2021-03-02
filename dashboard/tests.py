@@ -7,7 +7,7 @@ from .tasks import process_presence_line
 
 
 # Create your tests here.
-class PresenceFileProcessTestCase(TestCase):
+class PresenceFileProcessingTestCase(TestCase):
     def setUp(self):
         sample_file = PresenceFile(file_name='20200713_presence.txt')
         sample_file.processing_status = False
@@ -57,10 +57,23 @@ class PresenceFileProcessTestCase(TestCase):
                 - 4 E20000195206006314302257 2020-07-13T19:39:05.998"""
         )
 
-    def test_processing_single_presence_line(self):
+    # Test case to check if string parsing is working correctly and
+    # we are getting a proper PresenceLine object from a string
+    def test_process_valid_line(self):
         # Correct Input
         row = process_presence_line('- 4 E20000195206006314302257 2020-07-13T19:39:05.998')
         self.assertEqual(False, row.direction)
         self.assertEqual(4, row.reader)
         self.assertEqual(Pig.objects.get(pk=3), row.pig_rfid)
         self.assertEqual(datetime.fromisoformat('2020-07-13T19:39:05.998'), row.timestamp)
+
+    # Test case to check erroneous data input causes exception to be thrown
+    # https://stackoverflow.com/questions/129507/how-do-you-test-that-a-python-function-throws-an-exception/129610#129610
+    def test_process_invalid_line(self):
+        self.assertRaisesRegex(ValueError, 'Empty Input', process_presence_line(''))
+        self.assertRaisesRegex(ValueError, 'Expected + or - for direction', process_presence_line('# 4 E20000195206006314302257 2020-07-13T19:39:05.998'))
+        self.assertRaisesRegex(ValueError, 'Expected reader number to be in range [1-9]', process_presence_line('+ A E20000195206006314302257 2020-07-13T19:39:05.998'))
+        self.assertRaisesRegex(ValueError, 'Expected reader number to be in range [1-9]', process_presence_line('+ 99 E20000195206006314302257 2020-07-13T19:39:05.998'))
+        self.assertRaisesRegex(ValueError, 'Expected RFID to be in range [1-9]', process_presence_line('# 4 E20000195206006314302257 2020-07-13T19:39:05.998'))
+        self.assertRaisesRegex(ValueError, 'Invalid DateTime', process_presence_line('# 4 E20000195206006314302257 2020-07-13T19:39:05.998'))
+
