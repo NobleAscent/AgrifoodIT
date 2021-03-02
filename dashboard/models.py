@@ -33,11 +33,13 @@ class Pig(models.Model):
 
 
 class Presence(models.Model):
-    # many-to-one (many Presence for one Pig)
-    pig_rfid = models.ForeignKey(Pig, on_delete=models.CASCADE)
-
+    # Example of a sample line in a presence.txt file
+    # - 4 E200001999130097264042CC 2020-07-17T19:33:03.669 \n
     # True is +
     # False is -
     direction = models.BooleanField()
     reader = models.IntegerField()
+
+    # many-to-one (many Presence for one Pig)
+    pig_rfid = models.ForeignKey(Pig, on_delete=models.CASCADE)
     timestamp = models.DateTimeField()
