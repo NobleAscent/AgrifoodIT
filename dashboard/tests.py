@@ -70,10 +70,14 @@ class PresenceFileProcessingTestCase(TestCase):
     # Test case to check erroneous data input causes exception to be thrown
     # https://stackoverflow.com/questions/129507/how-do-you-test-that-a-python-function-throws-an-exception/129610#129610
     def test_process_invalid_line(self):
-        self.assertRaisesRegex(ValueError, 'Empty Input', process_presence_line(''))
-        self.assertRaisesRegex(ValueError, 'Expected + or - for direction', process_presence_line('# 4 E20000195206006314302257 2020-07-13T19:39:05.998'))
-        self.assertRaisesRegex(ValueError, 'Expected reader number to be in range [1-9]', process_presence_line('+ A E20000195206006314302257 2020-07-13T19:39:05.998'))
-        self.assertRaisesRegex(ValueError, 'Expected reader number to be in range [1-9]', process_presence_line('+ 99 E20000195206006314302257 2020-07-13T19:39:05.998'))
-        self.assertRaisesRegex(ValueError, 'Expected RFID to be in range [1-9]', process_presence_line('# 4 E20000195206006314302257 2020-07-13T19:39:05.998'))
-        self.assertRaisesRegex(ValueError, 'Invalid DateTime', process_presence_line('# 4 E20000195206006314302257 2020-07-13T19:39:05.998'))
-
+        self.assertRaisesRegex(ValueError, 'Empty Input', process_presence_line, '')
+        self.assertRaisesRegex(ValueError, 'Expected + or - for direction', process_presence_line,
+                               '# 4 E20000195206006314302257 2020-07-13T19:39:05.998')
+        self.assertRaisesRegex(ValueError, 'Expected reader number to be in range [1-9]', process_presence_line,
+                               '+ A E20000195206006314302257 2020-07-13T19:39:05.998')
+        self.assertRaisesRegex(ValueError, 'Expected reader number to be in range [1-9]', process_presence_line,
+                               '+ 99 E20000195206006314302257 2020-07-13T19:39:05.998')
+        self.assertRaisesRegex(ValueError, 'Expected RFID to be in range [1-9]', process_presence_line,
+                               '# 4 E20000195206006314302257 2020-07-13T19:39:05.998')
+        self.assertRaisesRegex(ValueError, 'Invalid DateTime', process_presence_line,
+                               '# 4 E20000195206006314302257 2020-07-13W19:39T:05.998')

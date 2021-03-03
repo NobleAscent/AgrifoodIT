@@ -1,5 +1,6 @@
 # Create your tasks here
 from datetime import datetime
+from typing import List
 
 from celery import shared_task
 from django.db.models import Q
@@ -45,11 +46,16 @@ def process_presence_file(primary_key):
         presence_file.processing_status = True
         presence_file.save()
 
+
+# https://medium.com/@ageitgey/learn-how-to-use-static-type-checking-in-python-3-6-in-10-minutes-12c86d72677b
 # Returns Presence model object
-def process_presence_line(line):
+def process_presence_line(line: str) -> Pig:
     # Example of a sample line in a presence.txt file
     # - 4 E200001999130097264042CC 2020-07-17T19:33:03.669 \n
-    line_array = line.strip().split(' ')
+    if len(line) == 0:
+        raise ValueError('Empty Input')
+
+    line_array: List[str] = line.strip().split(' ')
     row = Presence()
     row.direction = line_array[0] == '+'
     row.reader = int(line_array[1])
