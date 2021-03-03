@@ -1,0 +1,20 @@
+@startuml
+actor Farmer
+participant AgriFoodIT as main
+database database as db
+collections "Pluggable Django Apps" as apps
+queue "Background Tasks" as celery
+
+Farmer -> main : Upload RFID logs
+Farmer -> main : Upload Weather logs
+Farmer -> main : Upload Farm sensor logs
+main -> db : Processed Data
+Farmer -> apps : Request Update
+apps -> db : Request Data
+apps -> celery : Create Data Analysis
+celery -> db : Store Analysis Output
+main -> db : Fetch Analysis Data
+main -> Farmer : Show Visualizations
+celery -> Farmer : Notify/Email Warnings\n or Potential Actions
+
+@enduml
