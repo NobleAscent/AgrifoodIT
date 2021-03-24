@@ -3,7 +3,7 @@ from datetime import datetime
 from django.test import TestCase
 from .models import PresenceFile, Presence, Pig
 from django.core.files.uploadedfile import SimpleUploadedFile
-from .tasks import process_presence_line
+from .tasks import process_presence_line, validate_presence_line
 
 
 # Create your tests here.
@@ -70,14 +70,18 @@ class PresenceFileProcessingTestCase(TestCase):
     # Test case to check erroneous data input causes exception to be thrown
     # https://stackoverflow.com/questions/129507/how-do-you-test-that-a-python-function-throws-an-exception/129610#129610
     def test_process_invalid_line(self):
-        self.assertRaisesRegex(ValueError, 'Empty Input', process_presence_line, '')
-        self.assertRaisesRegex(ValueError, 'Expected + or - for direction', process_presence_line,
-                               '# 4 E20000195206006314302257 2020-07-13T19:39:05.998')
-        self.assertRaisesRegex(ValueError, 'Expected reader number to be in range [1-9]', process_presence_line,
+        self.assertRaisesRegex(ValueError, 'Empty Input', validate_presence_line, '')
+        self.assertRaisesRegex(ValueError, r'^Expected \+ or - for direction$', validate_presence_line,
+                          '# 4 E20000195206006314302257 2020-07-13T19:39:05.998')
+        self.assertRaisesRegex(ValueError, r'^Incorrect reader number format$', validate_presence_line,
                                '+ A E20000195206006314302257 2020-07-13T19:39:05.998')
-        self.assertRaisesRegex(ValueError, 'Expected reader number to be in range [1-9]', process_presence_line,
+        self.assertRaisesRegex(ValueError, r'^Incorrect reader number format$', validate_presence_line,
                                '+ 99 E20000195206006314302257 2020-07-13T19:39:05.998')
-        self.assertRaisesRegex(ValueError, 'Expected RFID to be in range [1-9]', process_presence_line,
-                               '# 4 E20000195206006314302257 2020-07-13T19:39:05.998')
-        self.assertRaisesRegex(ValueError, 'Invalid DateTime', process_presence_line,
-                               '# 4 E20000195206006314302257 2020-07-13W19:39T:05.998')
+        self.assertRaisesRegex(ValueError, r'^Incorrect RFID format$', validate_presence_line,
+                               '+ 4 E2!@#$%^&*()7 2020-07-13T19:39:05.998')
+        self.assertRaisesRegex(ValueError, r'^Invalid DateTime$', validate_presence_line,
+                               '+ 4 E20000195206006314302257 ABCD-07-13W19:39T:05.998')
+        self.assertRaisesRegex(ValueError, r'^Input does not split into 4 parts$', validate_presence_line,
+                               '+ 4 E20000195206006314302257 2020-07-13T19:39T:05.998 # 4 E20000195206006314302257')
+        self.assertRaisesRegex(ValueError, r'^RFID does not exist$', validate_presence_line,
+                               '+ 4 E99999999999999999999999 2020-07-13T19:39:05.998')
