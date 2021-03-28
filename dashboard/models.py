@@ -43,3 +43,4 @@ class Presence(models.Model):
     # many-to-one (many Presence for one Pig)
     pig_rfid = models.ForeignKey(Pig, on_delete=models.CASCADE)
     timestamp = models.DateTimeField()
+    presence_file = models.ForeignKey(PresenceFile, on_delete=models.CASCADE)

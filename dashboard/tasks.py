@@ -3,18 +3,19 @@ import re
 from datetime import datetime
 
 from celery import shared_task
-from django.db.models import Q
+from django.db.models import Q, QuerySet
 
 from .models import PresenceFile, Presence, Pig
 from django.core.exceptions import ObjectDoesNotExist
 
 
-def process_presence_line(line: str) -> Presence:
+def process_presence_line(line: str, file: PresenceFile) -> Presence:
     try:
         line_dict = validate_presence_line(line)
 
         # All error test cases passed so lets create new entry in Presence table
         row = Presence()
+        row.presence_file = file
         row.direction = line_dict['direction']
         row.reader = int(line_dict['sensor_number'])
 
@@ -29,13 +30,32 @@ def process_presence_line(line: str) -> Presence:
 
 
 @shared_task
-def process_presence_file(primary_key):
-    presence_file = PresenceFile.objects.get(pk=primary_key)
-    presence_file.upload.open(mode='r')
+def process_presence_file(primary_key) -> dict:
+    response_dict = {'Total lines': 0, 'Processed lines': 0}
+    try:
+        presence_file = PresenceFile.objects.get(pk=primary_key)
+        presence_file.upload.open(mode='r')
 
-    # Read each line in the text file
-    for line in presence_file.upload.readlines():
-        process_presence_line(line)
+        line_list: list = presence_file.upload.readlines()
+        response_dict['Total lines'] = len(line_list)
+
+        # Remove all previous existing processed lines if any
+        Presence.objects.filter(presence_file=primary_key).delete()
+
+        # Read each line in the text file
+        for line in line_list:
+            process_presence_line(line, presence_file)
+            response_dict['Processed lines'] += 1
+
+        # Update the File row to indicate that this file has been processed.
+        presence_file.comments = \
+            f'Processed lines:{response_dict["Processed lines"]} Errors:{response_dict["Total lines"] - response_dict["Processed lines"]}'
+        presence_file.processing_status = True
+        presence_file.save()
+    except ValueError as exception:
+        return response_dict
+    else:
+        return response_dict
 
 
 # https://medium.com/@ageitgey/learn-how-to-use-static-type-checking-in-python-3-6-in-10-minutes-12c86d72677b
@@ -47,7 +67,7 @@ def validate_presence_line(line: str) -> dict:
         raise ValueError('Empty Input')
 
     # We have to check if line is too short or contains more elements than we need.
-    line_split = line.split(' ')
+    line_split = line.strip().split(' ')
     if len(line_split) != 4:
         raise ValueError('Input does not split into 4 parts')
 
