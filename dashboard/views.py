@@ -2,8 +2,10 @@ from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render
 from .models import PresenceFile
 
-
 # Create your views here.
+from .tasks import process_presence_file
+
+
 def index(request):
     return render(request, 'dashboard/index.html')
 
@@ -20,3 +22,7 @@ def presence_upload(request):
         PresenceFile.objects.create(file_name=text_file.name, processing_status=False, upload=text_file)
         return JsonResponse({'status': 'success'})
     return JsonResponse({'status': 'error'})
+
+
+def presence_process(request, id):
+    return JsonResponse(process_presence_file(id))

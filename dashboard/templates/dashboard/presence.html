@@ -64,6 +64,9 @@
                                 {% else %}
                                     In Queue
                                 {% endif %}
+                                <a href="{% url 'presence-process' file.id %}" class="icon-block">
+                                    <i style="margin-right: 0.5em;" class="fas fa-redo"></i>
+                                </a>
                             </td>
                             <td>{{ file.upload_date }}</td>
                         </tr>

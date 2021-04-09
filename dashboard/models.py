@@ -1,6 +1,7 @@
 from datetime import datetime
 from django.db import models
 
+
 # Create your models here.
 class PresenceFile(models.Model):
     file_name = models.CharField(max_length=200)
@@ -17,3 +18,29 @@ class PresenceFile(models.Model):
 
     def __str__(self):
         return self.file_name
+
+
+# This model can be populated by seeding the database
+# https://docs.djangoproject.com/en/3.1/topics/migrations/#data-migrations
+class Pig(models.Model):
+    rfid_A = models.CharField(max_length=200, unique=True)
+    rfid_B = models.CharField(max_length=200, unique=True)
+    weight = models.IntegerField(default=-1)
+    nickname = models.CharField(max_length=50)
+
+    def __str__(self):
+        return self.nickname
+
+
+class Presence(models.Model):
+    # Example of a sample line in a presence.txt file
+    # - 4 E200001999130097264042CC 2020-07-17T19:33:03.669 \n
+    # True is +
+    # False is -
+    direction = models.BooleanField()
+    reader = models.IntegerField()
+
+    # many-to-one (many Presence for one Pig)
+    pig_rfid = models.ForeignKey(Pig, on_delete=models.CASCADE)
+    timestamp = models.DateTimeField()
+    presence_file = models.ForeignKey(PresenceFile, on_delete=models.CASCADE)
