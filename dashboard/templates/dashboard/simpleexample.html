@@ -1,0 +1,13 @@
+{% extends 'main_template.html' %}
+{% load static %}
+
+{% block head %}
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+{% endblock head %}
+
+{% block content %}
+    {% load plotly_dash %}
+    <div class="{% plotly_class name='SimpleExample' %}" style="height: 100%; width: 100%">
+        {% plotly_app name='SimpleExample' ratio=0.65%}
+    </div>
+{% endblock content %}
