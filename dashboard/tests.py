@@ -3,7 +3,7 @@ from datetime import datetime
 from django.test import TestCase
 from .models import PresenceFile, Presence, Pig
 from django.core.files.uploadedfile import SimpleUploadedFile
-from .tasks import process_presence_line, validate_presence_line
+from .processing.presence import process_presence_line, validate_presence_line
 
 
 # Create your tests here.

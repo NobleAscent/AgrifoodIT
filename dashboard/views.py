@@ -3,7 +3,7 @@ from django.shortcuts import render
 from .models import PresenceFile
 
 # Create your views here.
-from .tasks import process_presence_file
+from .processing.presence import process_presence_file
 
 
 def index(request):
