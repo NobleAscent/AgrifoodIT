@@ -1,12 +1,12 @@
 from datetime import datetime
 
-from dashboard.models import PresenceFile, Weather, WeatherFile
+from dashboard.models import Weather, WeatherFile
 
 
 def process_weather_file(primary_key) -> dict:
     response_dict = {'Total lines': 0, 'Processed lines': 0}
     try:
-        weather_file = PresenceFile.objects.get(pk=primary_key)
+        weather_file = WeatherFile.objects.get(pk=primary_key)
         weather_file.upload.open(mode='r')
 
         line_list: list = weather_file.upload.readlines()
