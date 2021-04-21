@@ -1,9 +1,10 @@
 from datetime import datetime
 
-from django.test import TestCase
-from .models import PresenceFile, Presence, Pig
 from django.core.files.uploadedfile import SimpleUploadedFile
-from .tasks import process_presence_line, validate_presence_line
+from django.test import TestCase
+
+from dashboard.models import PresenceFile, Pig
+from dashboard.processing.presence import process_presence_line, validate_presence_line
 
 
 # Create your tests here.
@@ -56,12 +57,14 @@ class PresenceFileProcessingTestCase(TestCase):
                 + 4 E20000195206006314302257 2020-07-13T19:39:00.997
                 - 4 E20000195206006314302257 2020-07-13T19:39:05.998"""
         )
+        sample_file.save()
 
     # Test case to check if string parsing is working correctly and
     # we are getting a proper PresenceLine object from a string
     def test_process_valid_line(self):
         # Correct Input
-        row = process_presence_line('- 4 E20000195206006314302257 2020-07-13T19:39:05.998')
+        row = process_presence_line('- 4 E20000195206006314302257 2020-07-13T19:39:05.998',
+                                    PresenceFile.objects.first())
         self.assertEqual(False, row.direction)
         self.assertEqual(4, row.reader)
         self.assertEqual(Pig.objects.get(pk=3), row.pig_rfid)
@@ -72,7 +75,7 @@ class PresenceFileProcessingTestCase(TestCase):
     def test_process_invalid_line(self):
         self.assertRaisesRegex(ValueError, 'Empty Input', validate_presence_line, '')
         self.assertRaisesRegex(ValueError, r'^Expected \+ or - for direction$', validate_presence_line,
-                          '# 4 E20000195206006314302257 2020-07-13T19:39:05.998')
+                               '# 4 E20000195206006314302257 2020-07-13T19:39:05.998')
         self.assertRaisesRegex(ValueError, r'^Incorrect reader number format$', validate_presence_line,
                                '+ A E20000195206006314302257 2020-07-13T19:39:05.998')
         self.assertRaisesRegex(ValueError, r'^Incorrect reader number format$', validate_presence_line,
