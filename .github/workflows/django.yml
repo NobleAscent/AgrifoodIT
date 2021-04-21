@@ -44,5 +44,6 @@ jobs:
 
       - name: Run Tests
         run: |
+          sudo mkdir /media/uploads
           sudo chown -R $USER:$USER /media/uploads
           python manage.py test -v 2
