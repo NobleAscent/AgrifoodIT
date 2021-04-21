@@ -7,7 +7,7 @@ from . import views
 from dashboard.dash_apps import simpleexample
 
 urlpatterns = [
-    path('', views.index, name='index'),
+    path('', views.index, name='dashboard'),
 
     path('presence/', views.presence, name='presence'),
     path('presence/upload', views.presence_upload, name='presence-upload'),
