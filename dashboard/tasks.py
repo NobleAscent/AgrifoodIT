@@ -3,7 +3,7 @@ from celery import shared_task
 from dashboard.models import PresenceFile
 from dashboard.processing.presence import process_presence_file
 
-# celery -A AgrifoodIT worker -l info
+# celery -A AgrifoodIT worker -l info --pool=solo
 
 @shared_task()
 def processNewFiles():

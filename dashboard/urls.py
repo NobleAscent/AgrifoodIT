@@ -8,8 +8,14 @@ from dashboard.dash_apps import simpleexample
 
 urlpatterns = [
     path('', views.index, name='index'),
+
     path('presence/', views.presence, name='presence'),
     path('presence/upload', views.presence_upload, name='presence-upload'),
     path('presence/process/<int:id>', views.presence_process, name='presence-process'),
+
+    path('weather/', views.weather, name='weather'),
+    path('weather/upload', views.weather_upload, name='weather-upload'),
+    path('weather/process/<int:id>', views.weather_process, name='weather-process'),
+
     path('simpleexample', TemplateView.as_view(template_name='dashboard/simpleexample.html'), name="demo-one"),
 ]
