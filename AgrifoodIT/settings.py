@@ -39,7 +39,8 @@ INSTALLED_APPS = [
     'django_celery_results',
     'django_plotly_dash.apps.DjangoPlotlyDashConfig',
     'channels',
-    'channels_redis'
+    'channels_redis',
+    'analysis.apps.analysisConfig'
 ]
 
 # https://django-plotly-dash.readthedocs.io/en/latest/installation.html

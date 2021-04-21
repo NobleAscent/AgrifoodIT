@@ -22,6 +22,7 @@ urlpatterns = [
     path('', include('dashboard.urls')),
     path('admin/', admin.site.urls),
     path('django_plotly_dash/', include('django_plotly_dash.urls')),
+    path('analysis/', include('analysis.urls')),
 ]
 
 # TODO: Remove in production
