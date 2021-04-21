@@ -44,5 +44,5 @@ jobs:
 
       - name: Run Tests
         run: |
-          sudo chown -R $USER:$USER /home/github/actions-runner/_work/AgrifoodIT
+          sudo chown -R $USER:$USER /media/uploads
           python manage.py test -v 2
