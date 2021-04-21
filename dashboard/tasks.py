@@ -8,25 +8,17 @@ from dashboard.processing.weather import process_weather_file
 
 
 @shared_task()
-def processNewPresenceFile(id):
-    latest_unprocessed_files = PresenceFile.objects.filter(processing_status=False)
-    print(f'Found {len(latest_unprocessed_files)} files to process')
-    for file in latest_unprocessed_files:
-        print('')
-        print(f'===== {file.file_name} =====')
-        process_presence_file(file.id)
-        print(f'===== ====== =====')
-
-    return f'Completed processing {len(latest_unprocessed_files)} files'
+def processNewPresenceFile(primary_key):
+    file = PresenceFile.objects.get(pk=primary_key)
+    print(f'===== {file.file_name} ===== START')
+    process_presence_file(file.id)
+    print(f'===== {file.file_name} ===== DONE')
+    return {"status": True}
 
 @shared_task()
-def processNewWeatherFiles():
-    latest_unprocessed_files = WeatherFile.objects.filter(processing_status=False)
-    print(f'Found {len(latest_unprocessed_files)} files to process')
-    for file in latest_unprocessed_files:
-        print('')
-        print(f'===== {file.file_name} =====')
-        process_weather_file(file.id)
-        print(f'===== ====== =====')
-
-    return f'Completed processing {len(latest_unprocessed_files)} files'
+def processNewWeatherFile(primary_key):
+    file = WeatherFile.objects.get(pk=primary_key)
+    print(f'===== {file.file_name} ===== START')
+    process_weather_file(file.id)
+    print(f'===== {file.file_name} ===== DONE')
+    return {"status": True}
