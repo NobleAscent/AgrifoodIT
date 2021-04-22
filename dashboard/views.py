@@ -1,14 +1,20 @@
+from django.db.models import Max
 from django.http import JsonResponse
 from django.shortcuts import render
+from datetime import date
 
-from .models import PresenceFile, WeatherFile
+from .models import PresenceFile, WeatherFile, Presence, Weather
 from .processing.presence import process_presence_file
 from .processing.weather import process_weather_file
 from .tasks import processNewPresenceFile, processNewWeatherFile
 
 
 def index(request):
-    return render(request, 'dashboard/index.html')
+    max_presence : date = Presence.objects.aggregate(Max('timestamp'))['timestamp__max'].date()
+    max_weather : date = Weather.objects.aggregate(Max('timestamp'))['timestamp__max'].date()
+    context = {'last_presence_upload': (date.today() - max_presence).days,
+               'last_weather_upload': (date.today() - max_weather).days}
+    return render(request, 'dashboard/index.html', context)
 
 
 def presence(request):
