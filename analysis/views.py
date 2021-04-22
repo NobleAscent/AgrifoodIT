@@ -1,9 +1,8 @@
 from django.http import JsonResponse
 
-from analysis.rohit.pig_enhanced_FPmining import generate_dataset_fpmining
+from analysis.rohit.presence_FPmining import mergePresenceWithWeather, findPigEntryExit, total_count_of_occurrences
 
 
 def pig_enhanced_FPmining(request):
-    generate_dataset_fpmining(num_of_pressure_ranges=5, num_of_hum_ranges=5, num_of_temp_ranges=5, time_range=180,
-                              support_threshold=0.1, conf_threshold=0.1, lift_threshold=0.1)
+    total_count_of_occurrences()
     return JsonResponse({'status': 'success'})
