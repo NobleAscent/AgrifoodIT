@@ -1,76 +1,125 @@
-from dashboard.models import Weather, Presence, Pig
 import datetime
-from collections import defaultdict
 
-# Output:
-# + 4 Pig 14 2020-07-16 03:03:42.116000 temperature: 11.7°C pressure: 1103.14hPa humidity: 11.7%
-# - 4 Pig 14 2020-07-16 03:03:47.118000 temperature: 11.7°C pressure: 1103.14hPa humidity: 11.7%
-# + 3 Pig 13 2020-07-16 04:07:48.304000 temperature: 12.59°C pressure: 1103.07hPa humidity: 12.59%
-# - 3 Pig 13 2020-07-16 04:07:53.305000 temperature: 12.59°C pressure: 1103.07hPa humidity: 12.59%
-# + 4 Pig 19 2020-07-16 04:12:56.329000 temperature: 12.61°C pressure: 1103.04hPa humidity: 12.61%
-# + 3 Pig 19 2020-07-16 04:12:58.633000 temperature: 12.61°C pressure: 1103.04hPa humidity: 12.61%
-def mergePresenceWithWeather():
-    for _presence in Presence.objects.filter(timestamp__date=datetime.date(2020, 7, 16)):
-        previous_minute = _presence.timestamp - datetime.timedelta(minutes=1)
-        previous_minute = previous_minute.replace(second=0, microsecond=0)
-        next_minute = previous_minute + datetime.timedelta(minutes=1)
+import pandas as pd
+from mlxtend.frequent_patterns import fpgrowth
+from mlxtend.preprocessing import TransactionEncoder
 
-        closest_weather = Weather.objects.filter(timestamp__range=(previous_minute, next_minute)).first()
+from dashboard.models import Weather, Presence
+
+
+def FPGrowth(dataset, min_support, min_length, min_support_of_custom_itemsets):
+    frequent_itemsets = fpgrowth(df=dataset, min_support=min_support,
+                                 use_colnames=True, max_len=None)
+
+    frequent_itemsets['length'] = frequent_itemsets['itemsets'].apply(lambda x: len(x))
+
+    freq_items = frequent_itemsets[(frequent_itemsets['length'] >= min_length) &
+                                   (frequent_itemsets['support'] >= min_support_of_custom_itemsets)]
+    return freq_items
+
+def generate_dataframe_for_FPGrowth(primary_key):
+    te = TransactionEncoder()
+
+    entryExitPairs : list = summarizedEntryExit(primary_key=primary_key)
+    range_dataset = []
+
+    for pair in entryExitPairs:
+        range_dataset.append(discretize_range_values_data(pair[2].temperature, pair[2].pressure, pair[2].humidity))
+
+    print('Printing Range Dataset')
+    print(range_dataset)
+
+    te_ary = te.fit(range_dataset).transform(range_dataset)
+    return pd.DataFrame(te_ary, columns=te.columns_)
+
+
+# + Pig 20 2020-07-16 07:04:53.767000 temperature: 17.36°C pressure: 1103.83hPa humidity: 54.84%
+# - Pig 20 2020-07-16 07:04:58.768000 temperature: 17.36°C pressure: 1103.83hPa humidity: 54.84%
+def summarizedEntryExit(primary_key) -> list:
+    dataset = []
+    processed_until_timestamp: datetime = datetime.datetime(2000, 1, 1)
+    for _presence in Presence.objects.filter(direction=True,
+                                             pig_rfid=primary_key):
+
+        if processed_until_timestamp > _presence.timestamp:
+            continue
+
+        # Create time range of 30 minutes
+        start_of_30_minutes = _presence.timestamp
+        end_of_30_minutes = start_of_30_minutes + datetime.timedelta(minutes=30)
+        processed_until_timestamp = end_of_30_minutes
+
+        exit_of_pig = Presence.objects.filter(timestamp__range=(start_of_30_minutes, end_of_30_minutes),
+                                              direction=False, pig_rfid=_presence.pig_rfid).order_by(
+            'timestamp')
+
+        furthest_exit_of_pig = exit_of_pig.last()
+
+        closest_weather = Weather.objects.filter(timestamp__range=(start_of_30_minutes, end_of_30_minutes)).first()
+
+        # To get average we would have to query the database further so it's better to take closest now
+        # average_weather = Weather.objects.filter(timestamp__range=(start_of_30_minutes, end_of_30_minutes))
+        # average_temperature = round(average_weather.aggregate(Avg('temperature'))['temperature__avg'], 2)
+        # average_pressure = round(average_weather.aggregate(Avg('pressure'))['pressure__avg'], 2)
+        # average_humidity = round(average_weather.aggregate(Avg('humidity'))['humidity__avg'], 2)
+
+        # TODO: Temporary fix incase we don't find weather
+        if not closest_weather:
+            continue
 
         print(
             f'{"+" if _presence.direction else "-"} '
-            f'{_presence.reader} '
             f'{_presence.pig_rfid.nickname} '
             f'{_presence.timestamp} '
             f'temperature: {closest_weather.temperature}°C '
             f'pressure: {closest_weather.pressure}hPa '
-            f'humidity: {closest_weather.temperature}%')
-
-# Output:
-# Pig 12 => Entry at 2020-07-16 19:32:48.087000 Exit at 2020-07-16 19:32:53.125000 Time Elapsed 5.038
-# Pig 8 => Entry at 2020-07-16 19:32:51.124000 Exit at 2020-07-16 19:33:11.335000 Time Elapsed 20.211
-# Pig 8 => Entry at 2020-07-16 19:33:09.334000 Exit at 2020-07-16 19:33:11.335000 Time Elapsed 2.001
-# Pig 8 => Entry at 2020-07-16 19:33:27.641000 Exit at 2020-07-16 19:33:32.642000 Time Elapsed 5.001
-# Pig 8 => Entry at 2020-07-16 19:33:41.663000 Exit at 2020-07-16 19:33:48.086000 Time Elapsed 6.423
-# Pig 11 => Entry at 2020-07-16 19:42:04.172000 Exit at 2020-07-16 19:42:09.173000 Time Elapsed 5.001
-# Pig 16 => Entry at 2020-07-16 20:21:56.953000 Exit at 2020-07-16 20:22:01.955000 Time Elapsed 5.002
-def findPigEntryExit():
-    for _presence in Presence.objects.filter(timestamp__date=datetime.date(2020, 7, 16)):
-
-        # If the pig exits the area then skip processing
-        if not _presence.direction:
-            continue
-
-        # Pig has entered the area. Lets find when it exits and after how long
-        _presence_exit = Presence.objects.filter(timestamp__date=datetime.date(2020, 7, 16),
-                                                 pig_rfid=_presence.pig_rfid,
-                                                 direction=False,
-                                                 timestamp__gte=_presence.timestamp).first()
-
+            f'humidity: {closest_weather.humidity}%')
         print(
-            f'{_presence.pig_rfid.nickname} => '
-            f'Entry at {_presence.timestamp} '
-            f'Exit at {_presence_exit.timestamp} '
-            f'Time Elapsed {(_presence_exit.timestamp - _presence.timestamp).total_seconds()}')
+            f'{"+" if furthest_exit_of_pig.direction else "-"} '
+            f'{furthest_exit_of_pig.pig_rfid.nickname} '
+            f'{furthest_exit_of_pig.timestamp} '
+            f'temperature: {closest_weather.temperature}°C '
+            f'pressure: {closest_weather.pressure}hPa '
+            f'humidity: {closest_weather.humidity}%')
 
+        dataset.append([_presence, furthest_exit_of_pig, closest_weather])
 
-# Output: defaultdict(<class 'int'>, {'Pig 14': 16, 'Pig 13': 12, 'Pig 19': 29, 'Pig 15': 6, 'Pig 6': 2, 'Pig 7': 3,
-# 'Pig 11': 7, 'Pig 3': 3, 'Pig 8': 10, 'Pig 16': 36, 'Pig 18': 2, 'Pig 20': 1, 'Pig 17': 7, 'Pig 10': 5,
-# 'Pig 5': 15, 'Pig 12': 1})
-def total_count_of_occurrences():
-    count_dictionary = defaultdict(int)
-    for _presence in Presence.objects.filter(timestamp__date=datetime.date(2020, 7, 16)):
+    return dataset
 
-        # If the pig exits the area then skip processing
-        if not _presence.direction:
-            continue
+def discretize_range_values_data(temp: float, pressure: float, humidity: float) -> list:
+    if 0 > temp >= -10:
+        temp = '0to-10-temp'
+    elif -10 > temp >= -20:
+        temp = '-10to-20-temp'
+    elif 0 <= temp < 10:
+        temp = '0to+10-temp'
+    elif 10 <= temp < 20:
+        temp = '+10to+20-temp'
+    elif 20 <= temp < 30:
+        temp = '+20to+30-temp'
+    elif 30 <= temp < 40:
+        temp = '+30to+40-temp'
+    else:
+        temp = 'other-temp'
 
-        # Pig has entered the area. Lets find when it exits and after how long
-        _presence_exit = Presence.objects.filter(timestamp__date=datetime.date(2020, 7, 16),
-                                                 pig_rfid=_presence.pig_rfid,
-                                                 direction=False,
-                                                 timestamp__gte=_presence.timestamp).first()
+    if 1100 > pressure >= 1080:
+        pressure = '1080-1100-pressure'
+    elif 1080 > pressure >= 1060:
+        pressure = '1080-1060-pressure'
+    elif 1100 <= pressure < 1120:
+        pressure = '1100-1120-pressure'
+    elif 1120 <= pressure < 1140:
+        pressure = '1120-1140-pressure'
+    else:
+        pressure = 'other-pressure'
 
-        count_dictionary[_presence.pig_rfid.nickname] += 1
+    if humidity < 25:
+        humidity = '0-25-hum'
+    elif 25 <= humidity < 50:
+        humidity = '25-50-hum'
+    elif 50 <= humidity < 75:
+        humidity = '50-75-hum'
+    elif 75 <= humidity <= 100:
+        humidity = '75-100-hum'
 
-    print(count_dictionary)
+    return [temp, pressure, humidity]
