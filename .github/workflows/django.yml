@@ -39,6 +39,8 @@ jobs:
 
       - name: Run migrations
         run: |
+          python manage.py makemigrations dashboard
+          python manage.py migrate dashboard
           python manage.py makemigrations
           python manage.py migrate
 
