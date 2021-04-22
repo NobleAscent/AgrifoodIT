@@ -14,6 +14,7 @@ external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
 
 app = DjangoDash('SimpleExample', external_stylesheets=external_stylesheets)
 
+# TODO: cover in try catch and put the original sql call back
 df = pd.DataFrame(
     [{'timestamp': datetime.datetime(2020, 7, 16, 0, 1, 39, 488000), 'temperature': 12.18, 'humidity': 62.88},
      {'timestamp': datetime.datetime(2020, 7, 16, 0, 2, 39, 520000), 'temperature': 12.14, 'humidity': 62.75},
