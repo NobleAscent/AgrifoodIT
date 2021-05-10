@@ -1,5 +1,14 @@
 {
     "conventionalCommits.scopes": [
         "thesis"
+    ],
+    "spellright.language": [
+        "en",
+        "hu"
+    ],
+    "spellright.documentTypes": [
+        "markdown",
+        "latex",
+        "plaintext"
     ]
 }
