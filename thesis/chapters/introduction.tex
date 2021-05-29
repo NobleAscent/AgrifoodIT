@@ -1,0 +1,64 @@
+\chapter{Introduction}
+\label{ch:introduction}
+
+\section{History}
+
+The miniaturization and economical availability of technological systems has
+lead to their massive adoption in agriculture. Armed with data from sensors and
+external sources such as local weather, farmers who implement precision
+agriculture are gaining deeper understanding of their operations. This enables
+them to better manage key resources while increasing productivity. Furthermore
+machines today are capable of analyzing and storing large amounts of data which
+wasn't possible a few years ago. The benefits of precision agriculture can be
+already seen in greater cost savings and higher yield. Greater precision in
+farming has already proved its benefits. Focusing mostly on data collection,
+analysis, and visualization decision-making for the farmers can be greatly
+eased. This is now known as Smart Farming. Data-driven farming is on course to
+reshape the entire agricultural sector.
+
+\section{Motivation}
+
+Animals are naturally dynamic and their behavior is hard to predict. Caged or
+farm animals can be easily monitored within the confines of the facility. Their
+behavior and movement can be controlled. However in the case of free-range
+animals, where the animal is not confined and has access to the outdoors, this
+is very difficult. In such a case the animal's behavior is hard to control and
+predict.
+
+The farmer needs a system which can help in the decision making of the
+free-range farm. Several RFID systems are installed on a free-range pig farm in
+Hungary to track the movement of pigs. The main purpose is to collect
+information which data scientists can use to come up with models which can
+provide useful information. 
+
+The data scientists however need a robust system to deploy their models and put
+them into production. This application fills the gap between the data scientist
+and the farmer. It needs to be flexible as new data and new analysis can be
+developed by the scientists. It should also be simple enough so that the farmer
+can use it without much technical knowledge.
+
+\section{Overview of the project}
+
+I am developing a Django web application for data collection and analysis in
+which a user can upload several text files of data. The data is then stored and
+the analysis is automatically run in the background. The results are stored and
+can be seen as visualizations. The gathered data can be browsed in the system.
+The application is easily extendible and does not require a lot of development
+knowledge. There are pre-defined places where any new feature can be plugged in
+and become ready to use in production. This will allow not only rapid
+prototyping but also it will provide continuous feedback to the farmer about the
+work of the data scientists.
+
+\section{Outline}
+
+In Chapter \ref{ch:user}, we focus on how to use this web application from the
+user's perspective. A user will upload new data files and the application will
+run the analysis on newly uploaded data. It will then update the visualization
+with the results
+
+Chapter \ref{ch:developer} discusses the details of this program. The libraries
+and the models used in this project are explained. The architecture of the web
+application which makes it modular is explained in detail with an example.
+
+The final chapter \ref{ch:conclusion} is the thesis conclusion which will sum
+everything and we will discuss further improvements and best practices
