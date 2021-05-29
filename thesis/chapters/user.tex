@@ -24,6 +24,14 @@ can choose the see the visualizations of the system based on existing data.
 	\label{tab:overall}
 \end{table}
 
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=1.0\textwidth]{workflow}
+	\caption{Request/Response cycle overview and the communication between components}
+	\label{fig:overview_uml}
+\end{figure}
+
 \section{Dashboard}
 
 A user upon opening the application gets the details of the status of the application.
@@ -75,7 +83,7 @@ process manager Celery shows the logs as it receives each file for processing.
 The files table shows all the uploaded files and it has
 the following features:
 \begin{enumerate}
-	\item\label{step:first} Search across all 4 columns.
+	\item Search across all 4 columns.
 	\item Sort ascending/descending by any single column.
 	\item Change the amount of rows between 10, 25, 50, 100.
 \end{enumerate}
@@ -83,10 +91,12 @@ the following features:
 \begin{figure}[H]
 	\centering
 	\subfigure[Files in Queue]{
-		\includegraphics[width=1.0\linewidth]{upload_table_unprocessed}}
+		\includegraphics[width=1.0\linewidth]{upload_table_unprocessed}
+		}
 
 	\subfigure[Files completely processed]{
-		\includegraphics[width=1.0\linewidth]{upload_table_processed}}
+		\includegraphics[width=1.0\linewidth]{upload_table_processed}
+		}
 	\caption{Files table with unprocessed and processed files}
 	\label{fig:upload-table}
 \end{figure}
@@ -98,7 +108,7 @@ run at a pre-defined interval. For proof of concept 2 different visualizations
 are implemented. A simple Temperature/Humidity graph and a complex analysis model.
 Every graph implements the following functionality:
 \begin{enumerate}
-	\item\label{step:first} Move around the graph interactively (Zoom/Pan).
+	\item Move around the graph interactively (Zoom/Pan).
 	\item Take screenshot of the graph.
 	\item Box selection and lasso selection.
 \end{enumerate}

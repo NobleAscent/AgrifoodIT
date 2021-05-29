@@ -12,6 +12,9 @@
 \usepackage{blkarray}
 \usepackage{amsmath}
 \usepackage{enumitem}
+\usepackage{dirtree}
+\usepackage{pdfpages} 
+
 
 % Dolgozat metaadatai
 % Document's metadata
@@ -62,7 +65,8 @@
 % Címlap (kötelező)
 % Title page (mandatory)
 \maketitle
-\topicdeclaration
+\includepdf[pages=-]{topicdeclaration.pdf}
+% \topicdeclaration
 
 % Tartalomjegyzék (kötelező)
 % Table of contents (mandatory)
@@ -97,9 +101,9 @@
 
 % Ábrajegyzék (opcionális) - 3-5 ábra fölött érdemes
 % List of figures (optional) - useful over 3-5 figures
-% \addcontentsline{toc}{chapter}{\lstfigurelabel}
-% \listoffigures
-% \cleardoublepage
+\addcontentsline{toc}{chapter}{\lstfigurelabel}
+\listoffigures
+\cleardoublepage
 
 % Táblázatjegyzék (opcionális) - 3-5 táblázat fölött érdemes
 % List of tables (optional) - useful over 3-5 tables
@@ -109,9 +113,9 @@
 
 % Forráskódjegyzék (opcionális) - 3-5 kódpélda fölött érdemes
 % List of codes (optional) - useful over 3-5 code samples
-% \addcontentsline{toc}{chapter}{\lstcodelabel}
-% \lstlistoflistings
-% \cleardoublepage
+\addcontentsline{toc}{chapter}{\lstcodelabel}
+\lstlistoflistings
+\cleardoublepage
 
 % Jelölésjegyzék (opcionális)
 % List of symbols (optional)
